@@ -1,0 +1,10 @@
+{
+  "uuid": "gnome-notches@xshys",
+  "name": "GNOME Notches",
+  "description": "Top bar as two MacBook-style notches (left: activities, places, clock; right: tray and system menu) and a notch-shaped dock.",
+  "shell-version": [
+    "50"
+  ],
+  "url": "https://github.com/xshys/GNOME-Notches",
+  "settings-schema": "org.gnome.shell.extensions.gnome-notches"
+}

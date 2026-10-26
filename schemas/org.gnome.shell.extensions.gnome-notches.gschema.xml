@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.gnome-notches" path="/org/gnome/shell/extensions/gnome-notches/">
+    <key name="layout" type="s">
+      <choices>
+        <choice value="two-islands"/>
+        <choice value="three-islands"/>
+        <choice value="single-notch"/>
+      </choices>
+      <default>'two-islands'</default>
+      <summary>Top bar layout</summary>
+    </key>
+    <key name="notch-color" type="s">
+      <default>'rgb(0,0,0)'</default>
+      <summary>Notch background color (CSS color)</summary>
+    </key>
+    <key name="panel-radius" type="i">
+      <range min="0" max="32"/>
+      <default>14</default>
+      <summary>Top bar notch corner radius (px)</summary>
+    </key>
+    <key name="panel-side-gap" type="i">
+      <range min="0" max="64"/>
+      <default>12</default>
+      <summary>Gap between the side notches and the screen edges (px)</summary>
+    </key>
+    <key name="dock-enabled" type="b">
+      <default>true</default>
+      <summary>Style the dock as a notch</summary>
+    </key>
+    <key name="dock-radius" type="i">
+      <range min="0" max="48"/>
+      <default>24</default>
+      <summary>Dock notch corner radius (px)</summary>
+    </key>
+  </schema>
+</schemalist>
