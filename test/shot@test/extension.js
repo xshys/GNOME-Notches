@@ -6,7 +6,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 // Loaded only by test/run.sh. Writes screenshots to $NOTCH_TEST_OUT and logs
 // one "CHECK OK <name>" / "CHECK FAIL <name> <detail>" line per check.
-const UUID = 'gnome-notches@xshys';
+const UUID = 'gnome-notches@xshys.github.io';
 const CLOCK_BOX = {'two-islands': 'panelLeft', 'three-islands': 'panelCenter', 'single-notch': 'panelCenter'};
 
 const panelBoxes = () => [Main.panel._leftBox, Main.panel._centerBox, Main.panel._rightBox];

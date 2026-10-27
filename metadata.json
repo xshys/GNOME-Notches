@@ -1,7 +1,8 @@
 {
-  "uuid": "gnome-notches@xshys",
+  "uuid": "gnome-notches@xshys.github.io",
   "name": "GNOME Notches",
-  "description": "Top bar as two MacBook-style notches (left: activities, places, clock; right: tray and system menu) and a notch-shaped dock.",
+  "description": "MacBook-style notches for the top bar and the dock.\n\nThe top bar becomes two islands (activities, places and clock on the left; tray icons and system menu on the right), three islands or a single notch, hanging from the top edge of the screen. The dock (Ubuntu Dock or Dash to Dock) becomes a notch glued to its screen edge.\n\nSettings: notch color, layout, corner radius, gap from the screen edges, dock style on/off.\n\nNote: the extension moves panel items between GNOME's left, center and right panel boxes (private API Main.panel._leftBox etc.) and restores them exactly on disable.",
+  "version-name": "1.0",
   "shell-version": [
     "50"
   ],

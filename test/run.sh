@@ -1,6 +1,6 @@
 #!/bin/bash
 # Headless test of GNOME Notches, isolated from the user's session, dconf and files.
-# Usage: test/run.sh [CASE ...]   (default: BOTTOM)
+# Usage: [NOTCH_EXT_DIR=DIR] test/run.sh [CASE ...]   (default: BOTTOM)
 #   CASE = DOCK_POSITION[:key=value...]
 #     key            gnome-notches setting, e.g. layout=single-notch
 #     path/key       any other setting, e.g. org/gnome/desktop/interface/color-scheme=prefer-light
@@ -13,16 +13,17 @@
 set -u
 TEST=$(dirname "$(readlink -f "$0")")
 PROJECT=$(dirname "$TEST")
+EXT=${NOTCH_EXT_DIR:-$PROJECT}   # NOTCH_EXT_DIR=<unzipped release> tests the packaged zip
 OUT=$TEST/out
 CHECKS=5   # CHECK lines expected from shot@test per case
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP" 2>/dev/null' EXIT
 mkdir -p "$OUT" "$TMP/share/gnome-shell/modes" "$TMP/share/gnome-shell/extensions"
 
-glib-compile-schemas --strict "$PROJECT/schemas" || exit 1
+glib-compile-schemas --strict "$EXT/schemas" || exit 1   # as GNOME does on install
 
 # Session-mode extensions must live in a system data dir, not ~/.local.
-ln -s "$PROJECT"        "$TMP/share/gnome-shell/extensions/gnome-notches@xshys"
+ln -s "$EXT"            "$TMP/share/gnome-shell/extensions/gnome-notches@xshys.github.io"
 ln -s "$TEST/shot@test" "$TMP/share/gnome-shell/extensions/shot@test"
 
 fail=0
@@ -56,7 +57,7 @@ dock-fixed=false")
     for g in "${!groups[@]}"; do printf '[%s]\n%s\n' "$g" "${groups[$g]}"; done \
         > "$home/config/glib-2.0/settings/keyfile"
     unset groups
-    echo "{$theme\"parentMode\":\"user\",\"enabledExtensions\":[$dock\"ubuntu-appindicators@ubuntu.com\",\"gnome-notches@xshys\",\"shot@test\"]}" \
+    echo "{$theme\"parentMode\":\"user\",\"enabledExtensions\":[$dock\"ubuntu-appindicators@ubuntu.com\",\"gnome-notches@xshys.github.io\",\"shot@test\"]}" \
         > "$TMP/share/gnome-shell/modes/notchtest.json"
     vmon=() && for ((i = 0; i < monitors; i++)); do vmon+=(--virtual-monitor 1600x900); done
 
