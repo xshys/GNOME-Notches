@@ -1,6 +1,7 @@
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import Shell from 'gi://Shell';
+import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 // Loaded only by test/run.sh. Writes screenshots to $NOTCH_TEST_OUT and logs
@@ -62,8 +63,23 @@ export default class {
         at(12.5, () => settings().set_string('layout', layout));
         at(13, () => check('live-restore', snapshot() === enabled, `\n  now      ${snapshot()}\n  expected ${enabled}`));
 
-        at(13.5, () => Main.extensionManager.openExtensionPrefs(UUID, '', {}));
-        at(19, () => this._shot(`${out}/prefs.png`));
+        // Light/dark switch reloads the shell theme: our stylesheet must survive it.
+        const themeContext = St.ThemeContext.get_for_stage(global.stage);
+        let oldTheme;
+        at(13.5, () => {
+            oldTheme = themeContext.get_theme();
+            const iface = new Gio.Settings({schema_id: 'org.gnome.desktop.interface'});
+            iface.set_string('color-scheme', Main.getStyleVariant() === 'light' ? 'prefer-dark' : 'prefer-light');
+        });
+        at(15, () => {
+            const theme = themeContext.get_theme();
+            const ours = theme.get_custom_stylesheets().some(f => f.get_path().endsWith(`/${UUID}/notches.css`));
+            check('theme-reload', theme !== oldTheme && ours, `reloaded=${theme !== oldTheme} ours=${ours}`);
+            this._shot(`${out}/theme.png`);
+        });
+
+        at(16, () => Main.extensionManager.openExtensionPrefs(UUID, '', {}));
+        at(22, () => this._shot(`${out}/prefs.png`));
     }
 
     async _shot(path) {

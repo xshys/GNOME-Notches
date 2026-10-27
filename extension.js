@@ -1,3 +1,4 @@
+import Cogl from 'gi://Cogl';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import St from 'gi://St';
@@ -18,6 +19,18 @@ const DOCK_CORNERS = {
     right: r => `${r}px 0 0 ${r}px`,
 };
 
+// Text color readable on the notch: themes with a light panel (Adwaita light)
+// use dark text, which would vanish on a black notch. Null if unparsable
+// (e.g. color names): the theme's color is kept.
+// ponytail: ignores alpha, a very transparent notch shows the wallpaper behind.
+function textColor(notchColor) {
+    const [ok, c] = Cogl.Color.from_string(notchColor);
+    if (!ok)
+        return null;
+    const luma = 0.299 * c.red + 0.587 * c.green + 0.114 * c.blue;
+    return luma > 150 ? 'rgb(34,34,38)' : 'rgb(255,255,255)';
+}
+
 function buildCss(settings) {
     const color = settings.get_string('notch-color');
     const r = settings.get_int('panel-radius');
@@ -32,11 +45,21 @@ ${boxes} { background-color: ${color}; border-radius: 0 0 ${r}px ${r}px; padding
 #panel #panelRight { margin-right: ${gap}px; }
 `;
 
+    const fg = textColor(color);
+    if (fg) {
+        // #uiGroup only raises specificity above the theme's #panel rules.
+        css += `#uiGroup #panel .panel-button { color: ${fg}; }
+#uiGroup #panel .panel-button#panelActivities .workspace-dot { background-color: ${fg}; }
+`;
+    }
+
     if (settings.get_boolean('dock-enabled')) {
         // #uiGroup only raises specificity above ubuntu-dock / dash-to-dock rules.
         const dock = '#uiGroup #dashtodockContainer';
         const dr = settings.get_int('dock-radius');
         css += `${dock} #dash .dash-background { background-color: ${color}; border-width: 0; margin: 0; }\n`;
+        if (fg)
+            css += `${dock} #dash .show-apps .overview-icon { color: ${fg}; }\n`;
         for (const [side, corners] of Object.entries(DOCK_CORNERS))
             css += `${dock}.${side} #dash .dash-background { border-radius: ${corners(dr)}; }\n`;
     }
@@ -66,7 +89,9 @@ export default class NotchesExtension extends Extension {
 
     _loadCss() {
         this._unloadCss();
-        const dir = GLib.build_filenamev([GLib.get_user_cache_dir(), this.uuid]);
+        // Runtime dir, not cache: GNOME re-reads custom stylesheets from disk on
+        // every theme reload, so the file must not be removed by cache cleaners.
+        const dir = GLib.build_filenamev([GLib.get_user_runtime_dir(), this.uuid]);
         GLib.mkdir_with_parents(dir, 0o755);
         const path = GLib.build_filenamev([dir, 'notches.css']);
         GLib.file_set_contents(path, buildCss(this._settings));
